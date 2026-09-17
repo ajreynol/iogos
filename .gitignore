@@ -1,0 +1,17 @@
+# Isabelle session images, document output and browser info, all of which
+# `isabelle build` produces from what is committed here.
+heaps/
+browser_info/
+output/
+
+# Local Isabelle/jEdit state, when ISABELLE_HOME_USER points into the tree.
+.isabelle/
+
+# Editor leftovers. Isabelle/jEdit writes both of these beside a theory.
+*~
+*.orig
+
+# Working space, kept out of the tree rather than tidied out of it later:
+# scratch output, and local notes written beside a document.
+scratch/
+*.local.md

@@ -1,0 +1,4 @@
+session Soundness = Cpc +
+  options [document = false]
+  theories
+    Soundness

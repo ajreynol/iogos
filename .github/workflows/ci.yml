@@ -1,0 +1,115 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  # The version this tree is developed against; see README.md. Isabelle release
+  # tarballs are not interchangeable, so the session images cached below are
+  # keyed on this.
+  ISABELLE_VERSION: Isabelle2025-2
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    # Building the whole CPC session is substantial, and the first run on a
+    # cold cache also unpacks Isabelle's own HOL image.
+    timeout-minutes: 120
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      # Until the first calculus is installed there is nothing to build, and a
+      # red CI on a tree that is honestly empty says nothing. Every later step
+      # is skipped rather than failed.
+      - name: Check whether a calculus is installed
+        id: calculus
+        run: |
+          if [[ -f Cpc/ROOT ]]; then
+            echo "installed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "installed=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No calculus is installed (Cpc/ROOT is absent); skipping the build."
+          fi
+
+      - name: Cache the Isabelle distribution
+        if: steps.calculus.outputs.installed == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/isabelle
+          key: isabelle-${{ runner.os }}-${{ env.ISABELLE_VERSION }}
+
+      - name: Install Isabelle
+        if: steps.calculus.outputs.installed == 'true'
+        run: |
+          set -euo pipefail
+          if [[ -x "$HOME/isabelle/bin/isabelle" ]]; then
+            echo "Using the cached distribution."
+          else
+            url="https://isabelle.in.tum.de/dist/${ISABELLE_VERSION}_linux.tar.gz"
+            curl -fsSL --retry 3 "$url" -o /tmp/isabelle.tar.gz
+            mkdir -p "$HOME/isabelle"
+            # The tarball unpacks into a single Isabelle<version> directory;
+            # strip it so that the path is the same whatever the version is.
+            tar -xzf /tmp/isabelle.tar.gz -C "$HOME/isabelle" --strip-components=1
+          fi
+          "$HOME/isabelle/bin/isabelle" version
+
+      # Keyed on the generated session, which is what an install changes and so
+      # what invalidates the image built from it. The handwritten sessions are
+      # rebuilt on every run, which is the cheap part.
+      - name: Cache the built session images
+        if: steps.calculus.outputs.installed == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.isabelle
+          key: isabelle-heaps-${{ runner.os }}-${{ env.ISABELLE_VERSION }}-${{ hashFiles('Cpc/**') }}
+          restore-keys: |
+            isabelle-heaps-${{ runner.os }}-${{ env.ISABELLE_VERSION }}-
+
+      - name: Build every registered session
+        if: steps.calculus.outputs.installed == 'true'
+        # Bounded rather than left to the runner: the generated checker has
+        # large datatypes, and the default parallelism exhausts the memory of a
+        # standard runner.
+        run: bash scripts/build.sh -j 2 -o threads=2
+
+  scripts:
+    name: scripts
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      # Cheap, needs no Isabelle, and catches the breakage that would otherwise
+      # only show up in front of someone trying to install a calculus.
+      - name: Check the shell scripts
+        run: |
+          set -euo pipefail
+          shellcheck scripts/*.sh
+          for script in scripts/*.sh; do
+            [[ -x "$script" ]] || { echo "error: $script is not executable" >&2; exit 1; }
+          done
+
+      - name: Check that the installer's destination is registered
+        # An installed calculus that ROOTS does not name is invisible to
+        # `isabelle build -D .`, and the failure is a confusing one.
+        run: |
+          set -euo pipefail
+          if [[ -f Cpc/ROOT ]] && ! grep -qx 'Cpc' ROOTS; then
+            echo "error: Cpc/ is installed but ROOTS does not list it." >&2
+            exit 1
+          fi

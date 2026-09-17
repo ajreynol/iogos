@@ -1,0 +1,4 @@
+session Cpc = HOL +
+  options [document = false]
+  theories
+    Cpc_Spec

@@ -136,9 +136,14 @@ as `Soundness` is.
 
 ## The generated interface
 
-Names are encoded injectively, because Eunoia admits symbols Isabelle does not:
-non-alphanumeric bytes, underscores included, become `_xhh`, and programs take
-a `p_` prefix. So `$eo_prog_contra` becomes `p__x24eo_x5fprog_x5fcontra`.
+Generated names preserve underscores and turn hyphens, dots, and colons into
+underscores. Programs drop the compiler's `$eo_prog_`, `$eo_`, or leading `$`
+wrapper and take a `p_` prefix: `$eo_prog_arith-elim-int-gt` becomes
+`p_arith_elim_int_gt`, with `obligation_arith_elim_int_gt` in the specification.
+Common symbolic operators get word names, such as `Term_Op_eq` and
+`Term_Op_implies`. Other punctuation uses readable markers (`at_`, `dollar_`)
+or `_xhh` byte escapes. Numeric suffixes distinguish names that would otherwise
+collide; rule programs receive their names before helpers.
 Constructors carry their datatype's name (`CRule_contra`, `Term_Apply`), and
 signature symbols get `Term_Op_` abbreviations, which is what keeps a user
 operator named `Stuck` distinct from `Term_Stuck`.
@@ -167,7 +172,7 @@ lemma "check_refutation 100 assumptions contradiction"
 
 ### The obligations
 
-`Cpc_Spec` defines, for each rule, an `obligation_<program>` predicate: that
+`Cpc_Spec` defines, for each rule, an `obligation_<rule>` predicate: that
 whenever the rule's program returns a result and that result is not
 `Term_Stuck`, the result is `valid`. `valid` is a parameter -- the
 interpretation of terms, and the premises each obligation holds under, belong

@@ -128,6 +128,12 @@ the compiler. So a regeneration is a reviewable diff. Commit `Cpc/` and the
 | `ROOTS` | partly the installer | the sessions this tree offers `isabelle build -D .` |
 | `Soundness/` | by hand | the soundness development over the generated session |
 | `scripts/` | by hand | the install and build wrappers |
+| `docs/` | by hand | notes, and [`docs/discussions.md`](docs/discussions.md) |
+
+What we would like the compiler to generate differently, and why, is collected
+in [`docs/discussions.md`](docs/discussions.md). The largest item is that the
+Isabelle backend emits one 2.1 MB theory where the Lean backend emits one
+module per rule.
 
 Nothing handwritten belongs in `Cpc/`: that directory is regenerated in its
 entirety, and a session that is replaced wholesale is a poor place to keep a

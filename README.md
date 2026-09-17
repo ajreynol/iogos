@@ -1,5 +1,15 @@
 # iogos
 
+> [!WARNING]
+> **THIS IS AN EXPERIMENTAL REPOSITORY, AND IT IS NOT FOR USE.**
+>
+> It is a research scaffold and one person's working tree. Nothing here is
+> released, supported, stable or reviewed. There is **no soundness proof**;
+> the checker it holds is **generated and unverified**; names and interfaces
+> change without notice, and the generated session is replaced wholesale on
+> every install. **Nothing in this tree should be relied on to establish that
+> any proof is correct.** See [Status](#status) for what is and is not here.
+
 ## An Isabelle/HOL Proof Checker for SMT
 
 iogos is the Isabelle/HOL counterpart of

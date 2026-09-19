@@ -4,9 +4,10 @@ begin
 
 text \<open>
   The soundness development over the generated CPC checker. This session is
-  written by hand and is never touched by an installation; the generated
-  session \<^verbatim>\<open>Cpc\<close> is replaced in its entirety on every run of
-  \<^verbatim>\<open>scripts/install.sh\<close>, so nothing handwritten belongs there.
+  written by hand in \<^verbatim>\<open>Cpc/Soundness/\<close>, alongside the generated
+  checker but in a separate session whose parent is \<^verbatim>\<open>Cpc\<close>.
+  The installer replaces the generated session's ROOT and top-level theory
+  files; it preserves this handwritten subdirectory.
 
   Nothing is proven here yet. What \<^verbatim>\<open>Cpc_Spec\<close> supplies is the
   starting point rather than the result: an obligation per rule, stated against

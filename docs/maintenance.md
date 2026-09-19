@@ -8,10 +8,10 @@ repository policy by this repository's own choice, and owing that ecosystem
 nothing. The obligation is self-imposed: it is recorded here, this repository
 answers to it by itself, and nobody is owed it. It is kept off the front page
 because there is not yet enough here to put behind a declaration — this tree is
-not published, it is one person's working tree, and the calculus itself has not
-been installed yet, so announcing membership on the README would oversell what
-is in it. The claim moves here rather than being dropped, so that a reader has
-a line to hold this repository to.
+not published, it is one person's working tree, and the committed generated
+checker has no soundness proof, so announcing membership on the README would
+oversell what is in it. The claim moves here rather than being dropped, so that
+a reader has a line to hold this repository to.
 
 ## The policy check
 

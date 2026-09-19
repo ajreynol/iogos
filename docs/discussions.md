@@ -251,8 +251,8 @@ Recorded so that nobody files them upstream by mistake.
   checker on a single proof, so a generator bug producing a well-typed but
   wrong checker builds green. Ethos has `tools/eoc/test/isabelle_smoke.thy` for
   its own test signature; the CPC equivalent belongs here, in a handwritten
-  session, because `Cpc/` is regenerated wholesale.
-- **The soundness development.** `Soundness/`, once request 3 settles what it
+  session under `Cpc/`, separate from its generated top-level files.
+- **The soundness development.** `Cpc/Soundness/`, once request 3 settles what it
   is developing against.
 - **Build resources.** Timeouts, job and thread counts, and whether CI can host
   the build at all are ours to measure and set.

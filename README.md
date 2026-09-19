@@ -6,8 +6,8 @@
 > It is a research scaffold and one person's working tree. Nothing here is
 > released, supported, stable or reviewed. There is **no soundness proof**;
 > the checker it holds is **generated and unverified**; names and interfaces
-> change without notice, and the generated session is replaced wholesale on
-> every install. **Nothing in this tree should be relied on to establish that
+> change without notice, and the generated files are replaced on every
+> install. **Nothing in this tree should be relied on to establish that
 > any proof is correct.** See [Status](#status) for what is and is not here.
 
 ## An Isabelle/HOL Proof Checker for SMT
@@ -26,10 +26,9 @@ https://github.com/cvc5/cvc5/blob/main/proofs/eo/cpc/Cpc.eo. The compilation is
 performed by the Eunoia compiler `ethos-eoc` and its `isabelle-meta` backend,
 documented at https://github.com/cvc5/ethos/blob/main/tools/eoc/README.md.
 
-**This repository is currently scaffolding.** The calculus itself has not been
-installed yet: `Cpc/` arrives from the first run of the installer described in
-[Receiving a generated calculus](#receiving-a-generated-calculus), and is
-committed here once it does.
+**This repository is currently scaffolding.** The generated checker and
+obligations are committed in `Cpc/`; the handwritten soundness development in
+`Cpc/Soundness/` is still a placeholder.
 
 ## Status
 
@@ -89,6 +88,10 @@ publishes into this tree. Run it through the wrapper:
 scripts/install.sh
 ```
 
+This wrapper requires an Ethos revision containing `tools/eoc/cpc/install_iogos`
+(for example, `bdc22f81`). The current local Ethos checkout no longer contains
+the CPC wrappers. Building the committed theories does not need the installer.
+
 The wrapper points the installer at this repository and otherwise stays out of
 the way; every `EOC_*` setting the installer documents still applies. The ones
 that matter most here:
@@ -117,9 +120,9 @@ the previously installed calculus untouched. On success it writes:
   banner naming where it came from;
 - a `Cpc` line in `ROOTS`, added once, preserving the entries already there.
 
-Running it again replaces exactly those files. Any other file under `Cpc/` is
-left alone, but this tree keeps handwritten theories in sessions of their own
-rather than relying on that -- see [Layout](#layout).
+Running it again replaces `Cpc/ROOT` and the top-level `.thy` files it emits.
+It preserves subdirectories, including the handwritten `Cpc/Soundness/`
+session -- see [Layout](#layout).
 
 The generated theories contain no `sorry` and no termination axioms.
 
@@ -134,9 +137,10 @@ the compiler. So a regeneration is a reviewable diff. Commit `Cpc/` and the
 
 | Path | Written by | Contents |
 | --- | --- | --- |
-| `Cpc/` | `scripts/install.sh` | the generated CPC checker and its obligations |
+| `Cpc/` | generated and by hand | the CPC checker, obligations and soundness development |
+| `Cpc/ROOT`, `Cpc/*.thy` | `scripts/install.sh` | the generated checker session |
+| `Cpc/Soundness/` | by hand | the soundness session over the generated checker |
 | `ROOTS` | partly the installer | the sessions this tree offers `isabelle build -D .` |
-| `Soundness/` | by hand | the soundness development over the generated session |
 | `scripts/` | by hand | the install and build wrappers |
 | `docs/` | by hand | notes, and [`docs/discussions.md`](docs/discussions.md) |
 
@@ -145,10 +149,11 @@ in [`docs/discussions.md`](docs/discussions.md). The largest item is that the
 Isabelle backend emits one 2.1 MB theory where the Lean backend emits one
 module per rule.
 
-Nothing handwritten belongs in `Cpc/`: that directory is regenerated in its
-entirety, and a session that is replaced wholesale is a poor place to keep a
-proof. Handwritten theories go in a session of their own whose parent is `Cpc`,
-as `Soundness` is.
+`Cpc/` contains one feature: the checker and the development of its soundness.
+Generated files stay at its top level; handwritten theories belong in
+`Cpc/Soundness/`, which the installer preserves. `Soundness` remains a separate
+Isabelle session whose parent is `Cpc`, importing `Cpc.Cpc_Spec`. Both session
+directories are registered in `ROOTS`.
 
 ## The generated interface
 

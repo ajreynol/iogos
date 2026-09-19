@@ -3,5 +3,5 @@
 # The `Cpc` entry is added here by tools/eoc/cpc/install_iogos in an Ethos
 # checkout, once, the first time a calculus is installed. It preserves the
 # entries already present, so handwritten sessions belong here too.
-Soundness
 Cpc
+Cpc/Soundness
